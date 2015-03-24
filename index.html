@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt-br" ng-app="seuapp">
+<head>
+	<meta charset="UTF-8">
+	<title>Angular Scroll Event</title>
+	
+	<!-- Autor: Diogo Souza Machado -->
+	<!-- www.diogomachado.com / 24/03/2015 -->
+	<meta name="viewport" content="width=device-width, user-scalable=no">
+
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+
+	<!-- Optional theme -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css">
+	
+	<!-- CDN Google -->
+	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.26/angular.min.js"></script>
+
+	<script>
+		// Inicializa app do angular
+		var app = angular.module('seuapp',[]);
+
+		angular.module('seuapp').controller('main', function ($scope) {
+			
+			$scope.horas = 10; 
+			$scope.minutos = 25; 
+
+		});
+
+		angular.module('seuapp').directive('increase', function ($interval) {
+		   return {
+		      restrict: 'A', // Atributo
+		      scope: {
+		        quem: '@', // Se refere a horas ou minutos
+		        operacao: '@', // Se refere se vamos aumentar ou diminuir 
+		        minutos: '=minutos', // Deve estar definido lá como horas="minutos"
+		        horas  : '=horas' // Deve estar definido lá como horas="horas"
+		      },
+		      link: function($scope, $elm, $attrs) {
+					
+				$elm.bind('touchstart', function(evt) {
+
+					// Começa um interval
+					promise = $interval(function () { 
+
+						// Verifica quem (horas ou minutos)
+						if ($scope.quem == "h")
+						{
+							// Transforma horas para int
+							$scope.horas = parseInt($scope.horas);
+
+							// Operação a = aumentar
+							if ($scope.operacao == "a"){
+								// Se for maior que 23
+								if ($scope.horas >= 23){
+									$scope.horas = 0;
+								}else{
+
+									// Incrementa
+									$scope.horas = $scope.horas + 1; 
+								}
+							}
+
+							// Operação d = dimunir
+							if ($scope.operacao == "d"){
+								// Se for menor que 00
+								if ($scope.horas <= 0){
+									$scope.horas = 23;
+								}else{
+
+									// Decrementa
+									$scope.horas = $scope.horas - 1; 
+								}
+							}
+						}
+
+						// Verifica quem (horas ou minutos)
+						if ($scope.quem == "m")
+						{
+							// Transforma minutos para int
+							$scope.minutos = parseInt($scope.minutos);
+
+							// Operação a = aumentar
+							if ($scope.operacao == "a"){
+								// Se for maior que 23
+								if ($scope.minutos >= 59){
+									$scope.minutos = 0;
+								}else{
+
+									// Incrementa
+									$scope.minutos = $scope.minutos + 1; 
+								}
+							}
+
+							// Operação d = dimunir
+							if ($scope.operacao == "d"){
+								// Se for menor que 00
+								if ($scope.minutos <= 0){
+									$scope.minutos = 59;
+								}else{
+
+									// Decrementa
+									$scope.minutos = $scope.minutos - 1; 
+								}
+							}
+						}
+
+			        }, 300);
+
+					$scope.$apply(function() {
+						$scope.$eval($attrs.increase)
+					});
+				});
+
+				// Se faz o touch e move o dedo, então cancela tb
+				$elm.bind('touchcancel', function(evt) {
+					$interval.cancel(promise);
+				});
+
+				// Se tiro o dedo do elemento, então para
+				$elm.bind('touchend', function(evt) {
+					// Cancela o intervalo
+					$interval.cancel(promise);
+				});
+
+		    }
+		  };
+		});
+	</script>
+</head>
+<body ng-controller="main">
+
+	<div class="alert alert-info">Este exemplo só irá funcionar se o navegador estiver simulando o touch</div>
+
+	<p>Horas</p>
+	<button increase horas="horas" quem="h" operacao="a" class="btn btn-lg btn-default">
+		<span class="glyphicon glyphicon-plus"></span>
+	</button>
+	<h1>{{horas}}</h1>
+	<button increase horas="horas" quem="h" operacao="d" class="btn btn-lg btn-default">
+		<span class="glyphicon glyphicon-minus"></span>
+	</button>
+
+	<hr>
+
+	<p>Minutos</p>
+	<button increase minutos="minutos" quem="m" operacao="a" class="btn btn-lg btn-default">
+		<span class="glyphicon glyphicon-plus"></span>
+	</button>
+	<h1>{{minutos}}</h1>
+	<button increase minutos="minutos" quem="m" operacao="d" class="btn btn-lg btn-default">
+		<span class="glyphicon glyphicon-minus"></span>
+	</button>
+
+</body>
+</html>
